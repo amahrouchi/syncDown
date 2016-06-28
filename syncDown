@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Ajouter
+# une gestion des param,
+# gestion des groupes de repo,
+# definir la liste des repo en fonction des arguments pour ne faire qu'une seule boucle de rsync
+
+if [ "$#" -lt 1 ]; then
+    echo "Usage :"
+    echo "syncDown <repo1> <repo2> ..."
+    echo "syncDown --all"
+    exit 1;
+fi
+
+LOCAL_PATH="/Volumes/Case Sensitive/repos"
+HOST="devweb"
+
+# Sync all local repos
+if [ $1 = "--all" ]; then
+    for dir in "$LOCAL_PATH"/*/;do
+        repo=$(echo "$dir" | rev | cut -d'/' -f2 | rev);
+        rsync -avzh --delete-after "$HOST":$repo --exclude ".idea" "$LOCAL_PATH"
+    done
+# Sync specific repos
+else
+    for repo in "$@"; do
+        rsync -avzh --delete-after "$HOST":$repo --exclude ".idea" "$LOCAL_PATH"
+    done
+fi
